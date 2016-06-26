@@ -89,6 +89,9 @@ def create_sub_element(parent, tag, text=None, namespace=None):
     parent.append(element)
     return element
 
+def find_or_create_sub_element(parent, tag, text=None, namespace=None):
+    element = parent.find(tag)
+    return element or create_sub_element(parent, tag, text, namespace)
 
 def create_document():
     document = create_element("TrainingCenterDatabase")
@@ -117,6 +120,7 @@ def add_trackpoint(element, trackpoint):
     speed      = trackpoint.get_data("speed")
     heart_rate = trackpoint.get_data("heart_rate")
     cadence    = trackpoint.get_data("cadence")
+    power      = trackpoint.get_data("power")
 
     create_sub_element(element, "Time", timestamp.isoformat() + "Z")
 
@@ -147,6 +151,13 @@ def add_trackpoint(element, trackpoint):
             "http://www.garmin.com/xmlschemas/ActivityExtension/v2")
         tpx.set("CadenceSensor", "Footpod")
         create_sub_element(tpx, "Speed", str(speed))
+
+    if power != None:
+        exelem  = find_or_create_sub_element(element, "Extensions")
+        tpx = find_or_create_sub_element(exelem, "TPX")
+        tpx.set("xmlns",
+            "http://www.garmin.com/xmlschemas/ActivityExtension/v2")
+        create_sub_element(tpx, "Watts", str(power))
 
 def add_lap(element, activity, lap):
 
